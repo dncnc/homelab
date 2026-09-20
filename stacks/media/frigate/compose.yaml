@@ -1,0 +1,47 @@
+# ==============================================================================
+# SERVICE: Frigate
+# DESCRIPTION: Frigate is an open source NVR built around real-time AI object
+#              detection. All processing is performed locally on your own 
+#              hardware, and your camera feeds never leave your home.
+#              https://https://frigate.video/
+#
+# Google Coral Edge TPU (M.2/PCIe version) installed for detection
+# driver installation instructions can be found here: 
+# https://coral.ai/docs/m2/get-started/#2a-on-linux
+#
+# Note: patched driver required for newer kernels, product abandoned by Google
+# ==============================================================================
+#
+name: frigate-nvr
+services:
+  frigate:
+    container_name: frigate-nvr
+    privileged: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    image: ghcr.io/blakeblackshear/frigate:stable
+    shm_size: 256mb
+    devices:
+      - /dev/apex_0:/dev/apex_0
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - frigate-nvr-vol:/config
+      - /media/ssd/frigate:/media/frigate
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "1984:1984"     # Go2RTC Web UI
+      - "5000:5000"     # Web UI (http)
+      - "8971:8971"     # Web UI (https)
+      - "8554:8554"     # RTSP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+    environment:
+      TZ: "America/Toronto"
+      FRIGATE_RTSP_PASSWORD: "${FRIGATE_RTSP_PASSWORD:?set FRIGATE_RTSP_PASSWORD}"
+
+volumes:
+  frigate-nvr-vol:
+    external: true
