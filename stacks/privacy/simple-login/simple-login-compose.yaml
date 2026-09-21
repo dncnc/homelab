@@ -17,7 +17,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - simple-login-db-vol:/var/lib/postgresql/data
+      - ${STACK_DIR}/db:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h localhost -U $$POSTGRES_USER"]
@@ -31,17 +31,13 @@ services:
   sl-migration:
     image: &sl-image simplelogin/app:4.6.5-beta
     container_name: sl-migration
-    command: alembic upgrade head
+    env_file: ${STACK_DIR}/simplelogin.env
+    command: ["alembic", "upgrade", "head"]
     volumes:
-      - simple-login-app-vol:/sl
-      - simple-login-upload-vol:/code/static/upload
-    secrets:
-      - source: sl_dkim_key
-        target: /dkim.key
-      - source: sl_dkim_pub_key
-        target: /dkim.pub.key
-      - source: sl_env_file
-        target: /code/.env
+      - ${STACK_DIR}/pgp:/sl/pgp
+      - ${STACK_DIR}/upload:/code/static/upload
+      - ${STACK_DIR}/dkim.key:/dkim.key
+      - ${STACK_DIR}/dkim.pub.key:/dkim.pub.key
     networks:
       - sl-network
     depends_on:
@@ -51,16 +47,13 @@ services:
   sl-init:
     image: *sl-image #
     container_name: sl-init
-    command: python init_app.py
+    env_file: ${STACK_DIR}/simplelogin.env
+    command: ["python", "init_app.py"]
     volumes:
-      - simple-login-app-vol:/sl
-    secrets:
-      - source: sl_dkim_key
-        target: /dkim.key
-      - source: sl_dkim_pub_key
-        target: /dkim.pub.key
-      - source: sl_env_file
-        target: /code/.env
+      - ${STACK_DIR}/pgp:/sl/pgp
+      - ${STACK_DIR}/upload:/code/static/upload
+      - ${STACK_DIR}/dkim.key:/dkim.key
+      - ${STACK_DIR}/dkim.pub.key:/dkim.pub.key
     networks:
       - sl-network
     depends_on:
@@ -70,18 +63,14 @@ services:
   sl-app:
     image: *sl-image
     container_name: sl-app
+    env_file: ${STACK_DIR}/simplelogin.env
     ports:
       - "127.0.0.1:7777:7777"
     volumes:
-      - simple-login-app-vol:/sl
-      - simple-login-upload-vol:/code/static/upload
-    secrets:
-      - source: sl_dkim_key
-        target: /dkim.key
-      - source: sl_dkim_pub_key
-        target: /dkim.pub.key
-      - source: sl_env_file
-        target: /code/.env
+      - ${STACK_DIR}/pgp:/sl/pgp
+      - ${STACK_DIR}/upload:/code/static/upload
+      - ${STACK_DIR}/dkim.key:/dkim.key
+      - ${STACK_DIR}/dkim.pub.key:/dkim.pub.key
     restart: unless-stopped
     networks:
       - sl-network
@@ -92,19 +81,15 @@ services:
   sl-email:
     image: *sl-image
     container_name: sl-email
-    command: python email_handler.py
+    env_file: ${STACK_DIR}/simplelogin.env
+    command: ["python", "email_handler.py"]
     ports:
       - "127.0.0.1:20381:20381"
     volumes:
-      - simple-login-app-vol:/sl
-      - simple-login-upload-vol:/code/static/upload
-    secrets:
-      - source: sl_dkim_key
-        target: /dkim.key
-      - source: sl_dkim_pub_key
-        target: /dkim.pub.key
-      - source: sl_env_file
-        target: /code/.env
+      - ${STACK_DIR}/pgp:/sl/pgp
+      - ${STACK_DIR}/upload:/code/static/upload
+      - ${STACK_DIR}/dkim.key:/dkim.key
+      - ${STACK_DIR}/dkim.pub.key:/dkim.pub.key
     restart: unless-stopped
     networks:
       - sl-network
@@ -115,39 +100,19 @@ services:
   sl-job-runner:
     image: *sl-image
     container_name: sl-job-runner
-    command: python job_runner.py
+    env_file: ${STACK_DIR}/simplelogin.env    
+    command: ["python", "job_runner.py"]
     volumes:
-      - simple-login-app-vol:/sl
-      - simple-login-upload-vol:/code/static/upload
-    secrets:
-      - source: sl_dkim_key
-        target: /dkim.key
-      - source: sl_dkim_pub_key
-        target: /dkim.pub.key
-      - source: sl_env_file
-        target: /code/.env
+      - ${STACK_DIR}/pgp:/sl/pgp
+      - ${STACK_DIR}/upload:/code/static/upload
+      - ${STACK_DIR}/dkim.key:/dkim.key
+      - ${STACK_DIR}/dkim.pub.key:/dkim.pub.key
     restart: unless-stopped
     networks:
       - sl-network
     depends_on:
       sl-init:
         condition: service_completed_successfully
-
-volumes:
-  simple-login-db-vol:
-    external: true
-  simple-login-app-vol:
-    external: true
-  simple-login-upload-vol:
-    external: true
-
-secrets:
-  sl_dkim_key:
-    external: true
-  sl_dkim_pub_key:
-    external: true
-  sl_env_file:
-    external: true
 
 networks:
   sl-network:
