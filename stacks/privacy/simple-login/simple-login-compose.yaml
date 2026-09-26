@@ -1,8 +1,7 @@
 # ==============================================================================
 # SERVICE: SimpleLogin
-# DESCRIPTION: 
-#
-#
+# DESCRIPTION: SimpleLogin | Protect your online identity with email alias.
+#              This stack provides the SimpleLogin back-end and web app.
 #
 # ==============================================================================
 #
