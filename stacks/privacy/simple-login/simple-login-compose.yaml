@@ -73,9 +73,13 @@ services:
     restart: unless-stopped
     networks:
       - sl-network
+      - caddy-network
     depends_on:
       sl-init:
         condition: service_completed_successfully
+    labels:
+      caddy: ${SL_APP_DOMAIN} 
+      caddy.reverse_proxy: {{upstreams 7777}}
 
   sl-email:
     image: *sl-image
@@ -115,4 +119,6 @@ services:
 
 networks:
   sl-network:
+    external: true
+  caddy-network:
     external: true
