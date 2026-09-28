@@ -79,7 +79,7 @@ services:
         condition: service_completed_successfully
     labels:
       caddy: ${SL_APP_DOMAIN} 
-      caddy.reverse_proxy: {{upstreams 7777}}
+      caddy.reverse_proxy: "{{upstreams 7777}}"
 
   sl-email:
     image: *sl-image
