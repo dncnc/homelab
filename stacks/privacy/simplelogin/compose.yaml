@@ -95,7 +95,8 @@ services:
       - ${STACK_DIR}/dkim.pub.key:/dkim.pub.key
     restart: unless-stopped
     networks:
-      - sl-network
+      sl-network:
+        ipv4_address: ${EMAIL_HANDLER_IPV4}
     depends_on:
       sl-init:
         condition: service_completed_successfully
