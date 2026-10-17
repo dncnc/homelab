@@ -2,7 +2,7 @@
 # SERVICE: SimpleLogin
 # DESCRIPTION: SimpleLogin | Protect your online identity with email alias.
 #              This stack provides the SimpleLogin back-end and web app.
-#
+#              https://github.com/simple-login 
 # ==============================================================================
 #
 services:
@@ -28,7 +28,7 @@ services:
       - sl-network
 
   sl-migration:
-    image: &sl-image simplelogin/app:4.6.5-beta
+    image: &sl-image simplelogin/$SL_IMAGE:$SL_VERSION
     container_name: sl-migration
     env_file: ${STACK_DIR}/simplelogin.env
     command: ["alembic", "upgrade", "head"]
