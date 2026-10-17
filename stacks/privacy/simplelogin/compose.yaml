@@ -28,7 +28,7 @@ services:
       - sl-network
 
   sl-migration:
-    image: &sl-image simplelogin/$SL_IMAGE:$SL_VERSION
+    image: &sl-image simplelogin/${SL_IMAGE}:${SL_VERSION}
     container_name: sl-migration
     env_file: ${STACK_DIR}/simplelogin.env
     command: ["alembic", "upgrade", "head"]
