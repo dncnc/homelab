@@ -7,7 +7,7 @@
 #
 services:
   sl-db:
-    image: postgres:12.1
+    image: postgres:17.11
     container_name: sl-db
     environment:
       POSTGRES_PASSWORD: ${SL_DB_PASSWORD}
