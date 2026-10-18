@@ -22,10 +22,10 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - frigate-vol:/config
       - ${FRIGATE_MEDIA_PATH}:/media/frigate
-        - type: tmpfs
-          target: /tmp/cache
-          tmpfs:
-            size: 1000000000
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
     ports:
       - "1984:1984"     # Go2RTC Web UI
       - "5000:5000"     # Web UI (http)
